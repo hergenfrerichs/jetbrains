@@ -21,8 +21,7 @@ def checks(i):
 
 
 random.seed()
-#list_words = ['python', 'java', 'kotlin', 'javascript']
-list_words = ['javascript']
+list_words = ['python', 'java', 'kotlin', 'javascript']
 word = random.choice(list_words)
 set_word = set(word)
 solution_set = set()
