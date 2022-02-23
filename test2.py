@@ -1,55 +1,65 @@
-import string
-
-#input_word = 'Hergen'
-
-def all_numbers(pw):
-    check = [k for k in pw if k in string.digits]
-    if len(check) == len(pw):
-        # print(pw)
-        return True
+import ast
+import re
 
 
-def hack(password):
-    count_comb = 2 ** len(password)
-
-    if all_numbers(password) == True:
-        yield password
-    else:
-        for a in range(count_comb):
-            word = list(password.lower())
-            binary = str(format(a, 'b'))
-            if len(binary) < len(word):
-                for i in range(1, len(word)):
-                    if len(binary) == i:
-                        add = (len(word) - i) * '0'
-                        binary = f'{add}{binary}'
-            for index, letter in enumerate(word):
-                if letter in string.ascii_lowercase:
-                    if binary[index] == '0':
-                        word[index] = letter.lower()
-                    if binary[index] == '1':
-                        word[index] = letter.upper()
-            yield ''.join(word)
-        
-
-password_file = open('passwords.txt', 'r')
-
-for i in range(1000):
-    line = password_file.readline().strip()
-    hack_generator = hack(line)
-
-    for i in range(1000000):
+def arg_snake_case (file_name_abs):
+    result_dict = {}
+    result_mut = {}
+    result_dict_2 = {}
+    with open(file_name_abs, 'r') as my_file:
+        script = my_file.read()
+        #print(script)
         try:
-            attempt = next(hack_generator)
-            #print(attempt)
-            if attempt == 'superMan':
-                print(f'Connection success!')
-                break
-        except:
-            break
-else:
-        print('Too many attempts!')
+            tree = ast.parse(script)
+            print(ast.dump(tree))
+            for node in ast.walk(tree):
+                list_var = []
+                list_mut = []
+                list_var_2 = []
+                print(node)
+                if isinstance(node, ast.FunctionDef):
+                    function_name = node.name                    
+                    print(function_name)
+                    # check whether the function's name is written in camel_case
+                    my_args = [a.arg for a in node.args.args]
+                    defaults = [str(d) for d in node.args.defaults]
+                    print(my_args)
+                    print(defaults)
+                    for each_arg in my_args:                    
+                        print(each_arg)
+                        template = r'_{,2}[a-z][a-z0-9]*_?[a-z0-9]*_?[a-z0-9]*_{,2}'
+                        check_snake_case = re.match(template, each_arg)
+                        if check_snake_case is None:
+                            #print(arg)
+                            list_var.append(each_arg)
+                            result_dict[function_name] = list_var
+                    for a, d in zip(my_args, defaults):
+                        ind_list = d.find('List')
+                        if ind_list != -1:
+                            list_mut.append(a)
+                            result_mut[function_name] = list_mut
+                         # print(result_mut)
+                    body_name = node.body
+                    for node_2 in body_name:
+                        # print(node_2)
+                        if isinstance(node_2, ast.Assign):
+                            target = node_2.targets
+                            print('Target', target)
+                        if isinstance(node_2, ast.Attribute):
+                            for a in ast.Attribute:
+                                print(a)
 
-password_file.close()
-   
-        
+                            
+                           
+                            
+                       
+                            
+                    
+
+                                                               
+
+        except:
+            pass
+        return result_dict, result_mut, result_dict_2
+
+arg_snake_case(r'C:\Users\Hergen\PycharmProjects\Github\test\Code_5.py')

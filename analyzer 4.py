@@ -1,4 +1,3 @@
-import ast
 import argparse
 import os
 import re
@@ -97,81 +96,6 @@ def snake_case (input_line):
             return f"S009 Function name '{def_name[0][4:]}' should use snake_case"
 
 
-# S010 S011 S012
-def arg_snake_case (file_name):
-    result_dict = {}
-    result_mut = {}
-    result_dict_2 = {}
-    if os.path.isabs(file_name) == False:  # Checks absolute/relative file reference
-        file_name_abs = f'{os.getcwd()}\\{file_name}'
-    else:
-        file_name_abs = file_name
-    with open(file_name_abs, 'r') as my_file:
-        script = my_file.read()
-        try:
-            tree = ast.parse(script) 
-            for node in ast.walk(tree):
-                list_var = []
-                list_mut = []
-                list_var_2 = []
-                if isinstance(node, ast.FunctionDef):
-                    function_name = node.name         
-                    args = [a.arg for a in node.args.args]
-                    defaults = [str(d) for d in node.args.defaults]                   
-                    for arg in args:                    
-                        template = r'_{,2}[a-z][a-z0-9]*_?[a-z0-9]*_?[a-z0-9]*_{,2}'
-                        check_snake_case = re.match(template, arg)
-                        if check_snake_case is None:                            
-                            list_var.append(arg)
-                            result_dict[function_name] = list_var                            
-                    for a, d in zip(args, defaults):
-                        ind_list = d.find('List')
-                        if ind_list != -1:
-                            list_mut.append(a)
-                            result_mut[function_name] = list_mut                    
-                    body_name = node.body
-                    for node_2 in body_name:                        
-                        if isinstance(node_2, ast.Assign):
-                            target = node_2.targets
-                            try:
-                                var = [v.id for v in target]                                
-                                for v in var:
-                                    template = r'_{,2}[a-z][a-z0-9]*_?[a-z0-9]*_?[a-z0-9]*_{,2}'
-                                    check_snake_case = re.match(template, v)
-                                    if check_snake_case is None:                                    
-                                        list_var_2.append(v)
-                                        result_dict_2[function_name] = list_var_2
-                            except:
-                                pass
-        except:
-            pass
-        return result_dict, result_mut, result_dict_2
-
-
-# Print S010 and S012
-def print_s010(file_name, input_line):
-    print_list = []
-    ind_def = input_line.find('def')
-    if ind_def != -1:
-        function_names = arg_snake_case(file_name)        
-        for key, value in function_names[0].items():
-            if input_line.find(key) != -1:
-                for v in value:
-                    print_list.append(f"S010 Argument name '{v}' should be snake_case")
-    if ind_def == -1:
-        function_names = arg_snake_case(file_name)
-        for value in function_names[2].values():            
-            if input_line.lstrip().startswith(f'{value[0]} '):
-                print_list.append(f"S011 Variable '{value[0]}' in function should be snake_case")
-    if ind_def != -1:
-        function_names = arg_snake_case(file_name)        
-        for key, value in function_names[1].items():
-            if input_line.find(key) != -1:
-                for v in value:
-                    print_list.append(f"S012 Default argument value is mutable")
-    return print_list
-      
-            
 def one_file(file_name):
     line_counter = 1
     empty_line_counter = 0
@@ -205,11 +129,7 @@ def one_file(file_name):
                 print(f'{file_name}: Line {line_counter}: {camel_case(line)}')
             if snake_case(line) is not None:
                 print(f'{file_name}: Line {line_counter}: {snake_case(line)}')
-            if print_s010(file_name, line) is not None:
-                for i in print_s010(file_name, line):
-                    print(f'{file_name}: Line {line_counter}: {i}')
-            line_counter += 1           
-                 
+            line_counter += 1
 
 def files_in_dir(dir_name):
     if os.path.isabs(dir_name) == False:
@@ -226,9 +146,8 @@ def main():
     args = parser.parse_args()
     if os.path.isfile(args.path_input):
         one_file(args.path_input)
-        # arg_snake_case(args.path_input)
     if os.path.isdir(args.path_input):
         files_in_dir(args.path_input)
-            
+    
     
 main()

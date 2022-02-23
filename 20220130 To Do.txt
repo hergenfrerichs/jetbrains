@@ -1,0 +1,16 @@
+if 'todo' in input_line.lower():
+        if "'" in input_line:            
+            ind_comm_1 = input_line.find("'", 0, ind_td)
+            ind_comm_2 = input_line.find("'", ind_td, -1)
+            print(ind_td, ind_comm_1, ind_comm_2)
+            if ind_td not in range(ind_comm_1, ind_comm_2):
+                return 'S005 TODO found'
+        elif '"' in input_line:
+            ind_comm_3 = input_line.find('"', 0, ind_td)
+            ind_comm_4 = input_line.find('"', ind_td, -1)
+            print(ind_td, ind_comm_3, ind_comm_4)
+            if ind_td not in range(ind_comm_3, ind_comm_4):
+                return 'S005 TODO found'
+        else:
+            return 'S005 TODO found'
+        
