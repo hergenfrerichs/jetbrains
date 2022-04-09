@@ -1,9 +1,8 @@
-a = int(input())
-b = int(input())
-c = int(input())
-d = int(input())
+import string
 
-print(f'{chr(a)}{chr(b)}{chr(c)}{chr(d)}')
-    
-
-    
+txt = "Hi’ Sam!"
+x = "mSa"
+y = "eJo"
+z = string.punctuation + '’'
+mytable = txt.maketrans(x, y, z)
+print(txt.translate(mytable))
